@@ -39,10 +39,7 @@ def flow_matching_loss(renderer: FlowRenderer, batch: dict) -> tuple[Tensor, Ten
   return base_loss, pred_velocity
 
 
-def train_step(renderer: FlowRenderer, batch: dict, optimizer: torch.optim.Optimizer, *,
-               extra_loss_fn: ExtraLossFn | None = None,
-               extra_weight: float = 1.0,
-               device_type: str = "cuda") -> dict[str, float]:
+def train_step(renderer: FlowRenderer, batch: dict, optimizer: torch.optim.Optimizer, *, extra_loss_fn: ExtraLossFn | None = None, extra_weight: float = 1.0, device_type: str = "cuda") -> dict[str, float]:
   """One optimization step. Returns scalar metrics for logging."""
   optimizer.zero_grad(set_to_none=True)
 

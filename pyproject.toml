@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "phaeron-core"
+version = "0.1.0"
+description = "Shared flow-matching backbone for PhysLive and WorldDiff."
+requires-python = ">=3.11"
+dependencies = [
+    "torch>=2.4",
+    "diffusers>=0.27",      # FrozenVAE (AutoencoderKL)
+    "transformers>=4.40",   # diffusers runtime dependency for VAE loading
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.4",
+    "mypy>=1.9",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["phaeron_core*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

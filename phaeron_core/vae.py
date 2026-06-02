@@ -2,7 +2,7 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 from torch import Tensor
-from diffusers import AutoencoderKL # type: ignore
+from diffusers import AutoencoderKL  # type: ignore
 
 
 class FrozenVAE(nn.Module):
@@ -14,31 +14,33 @@ class FrozenVAE(nn.Module):
     self.scale_factor = scale_factor
 
     self.vae = AutoencoderKL.from_pretrained(checkpoint)
-
     self.vae.requires_grad_(False)
     self.vae.eval()
 
     self.latent_channels = self.vae.config.latent_channels  # type: ignore
 
+  def train(self, mode: bool = True) -> "FrozenVAE":
+    super().train(mode)
+    self.vae.eval()
+    return self
+
   @torch.no_grad()
-  def encode(self, image: Tensor) -> Tensor:
+  def encode(self, image: Tensor, sample: bool = True) -> Tensor:
     device = next(self.vae.parameters()).device
     dtype = next(self.vae.parameters()).dtype
     x = image.to(device=device, dtype=dtype)
 
     posterior = self.vae.encode(x).latent_dist  # type: ignore
-    latent = posterior.sample()
+    latent = posterior.sample() if sample else posterior.mode()
 
     return latent * self.scale_factor
 
   @torch.no_grad()
   def decode(self, latent: Tensor) -> Tensor:
-    """[B,C,h,w] -> [B,3,H,W] image."""
     device = next(self.vae.parameters()).device
     dtype = next(self.vae.parameters()).dtype
     z = latent.to(device=device, dtype=dtype)
 
     z = z / self.scale_factor
-    
     out = self.vae.decode(z).sample  # type: ignore
     return out
